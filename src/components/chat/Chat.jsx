@@ -34,14 +34,66 @@ const Chat = () => {
   }, [chat?.messages]);
 
   useEffect(() => {
-    const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
-      setChat(res.data());
+    const unSub = onSnapshot(doc(db, "chats", chatId), async (res) => {
+      const chatData = res.data();
+      setChat(chatData);
+
+      if (chatData && currentUser.id !== user.id) {
+        const unreadMessages = chatData.messages.filter(
+          (msg) => msg.senderId !== currentUser.id && msg.status !== "seen"
+        );
+
+        for (const msg of unreadMessages) {
+          if (msg.status === "sent") {
+            await updateMessageStatus(msg.id, "delivered");
+          } else if (document.hasFocus()) {
+            await updateMessageStatus(msg.id, "seen");
+          }
+        }
+      }
     });
 
     return () => {
       unSub();
     };
-  }, [chatId]);
+  }, [chatId, currentUser.id, user.id]);
+
+  useEffect(() => {
+    const handleFocus = async () => {
+      if (chat && currentUser.id !== user.id) {
+        const unreadMessages = chat.messages.filter(
+          (msg) => msg.senderId !== currentUser.id && msg.status !== "seen"
+        );
+
+        for (const msg of unreadMessages) {
+          await updateMessageStatus(msg.id, "seen");
+        }
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [chat, currentUser.id, user.id]);
+
+  const updateMessageStatus = async (messageId, status) => {
+    try {
+      const chatRef = doc(db, "chats", chatId);
+      const chatDoc = await getDoc(chatRef);
+      const updatedMessages = chatDoc.data().messages.map((message) => {
+        if (message.id === messageId) {
+          return { ...message, status };
+        }
+        return message;
+      });
+
+      await updateDoc(chatRef, { messages: updatedMessages });
+    } catch (err) {
+      console.error("Error updating message status:", err);
+    }
+  };
 
   const handleEmoji = (e) => {
     setText((prev) => prev + e.emoji);
@@ -67,13 +119,17 @@ const Chat = () => {
         imgUrl = await upload(img.file);
       }
 
+      const newMessage = {
+        id: Date.now().toString(), // Add a unique id to each message
+        senderId: currentUser.id,
+        text,
+        createdAt: new Date(),
+        status: "sent", // Add initial status
+        ...(imgUrl && { img: imgUrl }),
+      };
+
       await updateDoc(doc(db, "chats", chatId), {
-        messages: arrayUnion({
-          senderId: currentUser.id,
-          text,
-          createdAt: new Date(),
-          ...(imgUrl && { img: imgUrl }),
-        }),
+        messages: arrayUnion(newMessage),
       });
 
       const userIDs = [currentUser.id, user.id];
@@ -139,6 +195,13 @@ const Chat = () => {
               {message.img && <img src={message.img} alt="" />}
               <p>{message.text}</p>
               <span>{format(message.createdAt.toDate())}</span>
+              {message.senderId === currentUser?.id && (
+                <span className={`status ${message.status}`}>
+                  {message.status === "sent" && "✓"}
+                  {message.status === "delivered" && "✓✓"}
+                  {message.status === "seen" && "✓✓"}
+                </span>
+              )}
             </div>
           </div>
         ))}
