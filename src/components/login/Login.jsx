@@ -6,7 +6,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore"; // Add these imports
 import upload from "../../lib/upload";
 
 const Login = () => {
@@ -43,6 +43,7 @@ const Login = () => {
     const q = query(usersRef, where("username", "==", username));
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
+      setLoading(false);
       return toast.warn("Select another username");
     }
 
