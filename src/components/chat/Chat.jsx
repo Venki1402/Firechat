@@ -120,11 +120,11 @@ const Chat = () => {
       }
 
       const newMessage = {
-        id: Date.now().toString(), // Add a unique id to each message
+        id: Date.now().toString(),
         senderId: currentUser.id,
         text,
         createdAt: new Date(),
-        status: "sent", // Add initial status
+        status: "sent",
         ...(imgUrl && { img: imgUrl }),
       };
 
@@ -134,7 +134,7 @@ const Chat = () => {
 
       const userIDs = [currentUser.id, user.id];
 
-      userIDs.forEach(async (id) => {
+      await Promise.all(userIDs.map(async (id) => {
         const userChatsRef = doc(db, "userchats", id);
         const userChatsSnapshot = await getDoc(userChatsRef);
 
@@ -154,7 +154,7 @@ const Chat = () => {
             chats: userChatsData.chats,
           });
         }
-      });
+      }));
     } catch (err) {
       console.log(err);
     } finally {
@@ -164,6 +164,18 @@ const Chat = () => {
       });
 
       setText("");
+    }
+  };
+
+  const sendMessage = async () => {
+    if (text.trim() === "") return;
+    await handleSend();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
@@ -233,6 +245,7 @@ const Chat = () => {
           }
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyDown}
           disabled={isCurrentUserBlocked || isReceiverBlocked}
         />
         <div className="emoji">
@@ -247,7 +260,7 @@ const Chat = () => {
         </div>
         <button
           className="sendButton"
-          onClick={handleSend}
+          onClick={sendMessage}
           disabled={isCurrentUserBlocked || isReceiverBlocked}
         >
           Send
