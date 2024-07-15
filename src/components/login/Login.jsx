@@ -6,7 +6,14 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { auth, db } from "../../lib/firebase";
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore"; // Add these imports
+import {
+  doc,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore"; // Add these imports
 import upload from "../../lib/upload";
 
 const Login = () => {
@@ -87,7 +94,7 @@ const Login = () => {
       toast.error(err.message);
     } finally {
       setLoading(false);
-      window.location.reload()
+      window.location.reload();
     }
   };
 
