@@ -2,8 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  font-family: jetbrains-mono, monospace;
 }
 
 body {
@@ -12,22 +11,28 @@ body {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  width: 100vw;
   color: white;
 }
 
 .container {
-  width: 80vw;
-  height: 90vh;
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(17, 25, 40, 0.75);
   backdrop-filter: blur(19px) saturate(180%);
-  border-radius: 12px;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.125);
   display: flex;
 }
 
-.loading{
+.loading {
   padding: 50px;
   font-size: 36px;
   border-radius: 10px;
-  background-color: rgba(17, 25, 40, 0.9);
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #25d366; /* WhatsApp green */
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid #dcdcdc;
 }
+

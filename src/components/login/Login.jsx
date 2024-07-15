@@ -94,7 +94,7 @@ const Login = () => {
   return (
     <div className="login">
       <div className="item">
-        <h2>Welcome back,</h2>
+        <h2>Login to Firechat</h2>
         <form onSubmit={handleLogin}>
           <input type="text" placeholder="Email" name="email" />
           <input type="password" placeholder="Password" name="password" />
@@ -103,7 +103,7 @@ const Login = () => {
       </div>
       <div className="separator"></div>
       <div className="item">
-        <h2>Create an Account</h2>
+        <h2>Sign Up!</h2>
         <form onSubmit={handleRegister}>
           <label htmlFor="file">
             <img src={avatar.url || "./avatar.png"} alt="" />
